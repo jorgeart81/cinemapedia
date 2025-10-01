@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cinemapedia/presentation/providers/movies/movies_providers.dart';
 import 'package:cinemapedia/presentation/providers/movies/movies_slideshow_provider.dart';
 import 'package:cinemapedia/presentation/widgest/movies/movies_horizontal_listview.dart';
@@ -32,7 +34,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   void initState() {
     super.initState();
-
     ref.read(nowPlayingMoviesProvider.notifier).loadNextPage();
   }
 
@@ -53,6 +54,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
           movies: nowPlayingMovies,
           title: 'En cines',
           subTitle: 'Lunes 20',
+          loadNextPage: () {
+            ref.read(nowPlayingMoviesProvider.notifier).loadNextPage();
+          },
         ),
       ],
     );
