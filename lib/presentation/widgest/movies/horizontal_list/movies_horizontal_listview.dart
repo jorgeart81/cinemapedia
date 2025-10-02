@@ -3,6 +3,7 @@ import 'package:cinemapedia/domain/movie.dart';
 import 'package:cinemapedia/presentation/widgest/movies/horizontal_list/list_header.dart';
 import 'package:cinemapedia/presentation/widgest/movies/horizontal_list/slide_card.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class MoviesHorizontalListview extends StatefulWidget {
   final List<Movie> movies;
@@ -66,7 +67,12 @@ class _MoviesHorizontalListviewState extends State<MoviesHorizontalListview> {
               physics: const BouncingScrollPhysics(),
               itemBuilder: (context, index) {
                 return FadeInRight(
-                  child: SlideCard(movie: widget.movies[index]),
+                  child: SlideCard(
+                    movie: widget.movies[index],
+                    goTo: (id) {
+                      context.push('/movie/$id');
+                    },
+                  ),
                 );
               },
             ),

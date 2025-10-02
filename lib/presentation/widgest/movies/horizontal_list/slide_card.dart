@@ -3,10 +3,13 @@ import 'package:cinemapedia/config/helpers/human_formats.dart';
 import 'package:cinemapedia/domain/movie.dart';
 import 'package:flutter/material.dart';
 
+typedef GoToCallback = void Function(int id);
+
 class SlideCard extends StatelessWidget {
   final Movie movie;
+  final GoToCallback goTo;
 
-  const SlideCard({super.key, required this.movie});
+  const SlideCard({super.key, required this.movie, required this.goTo});
 
   @override
   Widget build(BuildContext context) {
@@ -15,9 +18,11 @@ class SlideCard extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 8),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
+            height: 225,
             width: 150,
             child: ClipRRect(
               borderRadius: BorderRadiusGeometry.circular(20),
@@ -31,18 +36,23 @@ class SlideCard extends StatelessWidget {
                     );
                   }
 
-                  return FadeIn(child: child);
+                  return GestureDetector(
+                    onTap: () {
+                      goTo(movie.id);
+                    },
+                    child: FadeIn(child: child),
+                  );
                 },
               ),
             ),
           ),
 
           SizedBox(height: 5),
+
           SizedBox(
             width: 150,
             child: Text(movie.title, maxLines: 2, style: textStyle.titleSmall),
           ),
-
           Row(
             children: [
               Icon(Icons.star_half_outlined, color: Colors.yellow.shade800),
@@ -55,11 +65,13 @@ class SlideCard extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                HumanFormats.number(movie.popularity * 1000),
+                HumanFormats.number(movie.popularity),
                 style: textStyle.bodySmall,
               ),
             ],
           ),
+
+          Spacer(flex: 1),
         ],
       ),
     );
