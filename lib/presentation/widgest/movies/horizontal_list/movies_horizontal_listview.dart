@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/domain/movie.dart';
 import 'package:cinemapedia/presentation/widgest/movies/horizontal_list/list_header.dart';
 import 'package:cinemapedia/presentation/widgest/movies/horizontal_list/slide_card.dart';
@@ -64,7 +65,9 @@ class _MoviesHorizontalListviewState extends State<MoviesHorizontalListview> {
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
               itemBuilder: (context, index) {
-                return SlideCard(movie: widget.movies[index]);
+                return FadeInRight(
+                  child: SlideCard(movie: widget.movies[index]),
+                );
               },
             ),
           ),

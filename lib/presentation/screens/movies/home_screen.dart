@@ -1,9 +1,11 @@
+import 'package:cinemapedia/presentation/providers/movies/initial_loading_provider.dart';
 import 'package:cinemapedia/presentation/providers/movies/movies_providers.dart';
 import 'package:cinemapedia/presentation/providers/movies/movies_slideshow_provider.dart';
 import 'package:cinemapedia/presentation/widgest/movies/horizontal_list/movies_horizontal_listview.dart';
 import 'package:cinemapedia/presentation/widgest/movies/movies_slideshow.dart';
 import 'package:cinemapedia/presentation/widgest/shared/custom_appbar.dart';
 import 'package:cinemapedia/presentation/widgest/shared/custom_bottom_navbar.dart';
+import 'package:cinemapedia/presentation/widgest/shared/full_screen_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -40,15 +42,15 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = ref.watch(initialLoadingProvider);
+    if (isLoading) return const FullScreenLoader();
+
     final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
     final popularMovies = ref.watch(popularMoviesProvider);
     final topRatedMovies = ref.watch(topRatedMoviesProvider);
     final upcomingMovies = ref.watch(upcomingMoviesProvider);
-    final moviesSlideshow = ref.watch(moviesSlideshowProvider);
 
-    if (nowPlayingMovies.isEmpty) {
-      return Center(child: CircularProgressIndicator());
-    }
+    final moviesSlideshow = ref.watch(moviesSlideshowProvider);
 
     return CustomScrollView(
       slivers: [
@@ -90,7 +92,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
                 MoviesHorizontalListview(
                   movies: topRatedMovies,
-                  title: 'Las más valorados',
+                  title: 'Las más valoradas',
                   loadNextPage: () {
                     ref.read(topRatedMoviesProvider.notifier).loadNextPage();
                   },
