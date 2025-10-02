@@ -1,7 +1,8 @@
 import 'package:cinemapedia/domain/movie.dart';
+import 'package:cinemapedia/infrastructure/models/movie_details.dart';
 import 'package:cinemapedia/infrastructure/models/movie_moviedb.dart';
 
-extension MovieExtensions on MovieMovieDB {
+extension MovieDBExtension on MovieMovieDB {
   Movie toEntity() {
     return Movie(
       adult: adult,
@@ -17,6 +18,31 @@ extension MovieExtensions on MovieMovieDB {
       posterPath: posterPath != ''
           ? 'https://image.tmdb.org/t/p/w500$posterPath'
           : 'no-poster',
+      releaseDate: releaseDate,
+      title: title,
+      video: video,
+      voteAverage: voteAverage,
+      voteCount: voteCount,
+    );
+  }
+}
+
+extension MovieDetailsExtension on MovieDetails {
+  Movie toEntity() {
+    return Movie(
+      adult: adult,
+      backdropPath: (backdropPath != '')
+          ? 'https://image.tmdb.org/t/p/w500$backdropPath'
+          : 'https://sd.keepcalms.com/i-w600/keep-calm-poster-not-found.jpg',
+      genreIds: genres.map((e) => e.name).toList(),
+      id: id,
+      originalLanguage: originalLanguage,
+      originalTitle: originalTitle,
+      overview: overview,
+      popularity: popularity,
+      posterPath: (posterPath != '')
+          ? 'https://image.tmdb.org/t/p/w500$posterPath'
+          : 'https://sd.keepcalms.com/i-w600/keep-calm-poster-not-found.jpg',
       releaseDate: releaseDate,
       title: title,
       video: video,
