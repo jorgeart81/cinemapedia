@@ -2,14 +2,39 @@ import 'package:cinemapedia/domain/movie.dart';
 import 'package:cinemapedia/presentation/providers/movies/movies_repository_provider.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
+typedef MovieCallback = Future<List<Movie>> Function({int page});
+
 final nowPlayingMoviesProvider =
     StateNotifierProvider<MoviesNotifier, List<Movie>>((ref) {
-      final fetchMoreMovies = ref.watch(movieRepositoryProvider).getNowPlaying;
+      final fetchNowPlayingMovies = ref
+          .watch(movieRepositoryProvider)
+          .getNowPlaying;
 
-      return MoviesNotifier(fetchMoreMovies: fetchMoreMovies);
+      return MoviesNotifier(fetchMoreMovies: fetchNowPlayingMovies);
     });
 
-typedef MovieCallback = Future<List<Movie>> Function({int page});
+final popularMoviesProvider =
+    StateNotifierProvider<MoviesNotifier, List<Movie>>((ref) {
+      final fetchPopularMovies = ref.watch(movieRepositoryProvider).getPopular;
+
+      return MoviesNotifier(fetchMoreMovies: fetchPopularMovies);
+    });
+
+final topRatedMoviesProvider =
+    StateNotifierProvider<MoviesNotifier, List<Movie>>((ref) {
+      final fetchTopRatedMovies = ref
+          .watch(movieRepositoryProvider)
+          .getTopRated;
+
+      return MoviesNotifier(fetchMoreMovies: fetchTopRatedMovies);
+    });
+
+final upcomingMoviesProvider =
+    StateNotifierProvider<MoviesNotifier, List<Movie>>((ref) {
+      final fetchUpcomingMovies = ref.watch(movieRepositoryProvider).getPopular;
+
+      return MoviesNotifier(fetchMoreMovies: fetchUpcomingMovies);
+    });
 
 class MoviesNotifier extends StateNotifier<List<Movie>> {
   bool _isLoading = false;

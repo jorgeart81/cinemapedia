@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:cinemapedia/presentation/providers/movies/movies_providers.dart';
 import 'package:cinemapedia/presentation/providers/movies/movies_slideshow_provider.dart';
 import 'package:cinemapedia/presentation/widgest/movies/movies_horizontal_listview.dart';
@@ -35,28 +33,72 @@ class _HomeViewState extends ConsumerState<HomeView> {
   void initState() {
     super.initState();
     ref.read(nowPlayingMoviesProvider.notifier).loadNextPage();
+    ref.read(popularMoviesProvider.notifier).loadNextPage();
+    ref.read(topRatedMoviesProvider.notifier).loadNextPage();
+    ref.read(upcomingMoviesProvider.notifier).loadNextPage();
   }
 
   @override
   Widget build(BuildContext context) {
     final nowPlayingMovies = ref.watch(nowPlayingMoviesProvider);
+    final popularMovies = ref.watch(popularMoviesProvider);
+    final topRatedMovies = ref.watch(topRatedMoviesProvider);
+    final upcomingMovies = ref.watch(upcomingMoviesProvider);
     final moviesSlideshow = ref.watch(moviesSlideshowProvider);
 
     if (nowPlayingMovies.isEmpty) {
       return Center(child: CircularProgressIndicator());
     }
 
-    return Column(
-      children: [
-        const CustomAppbar(),
-        MoviesSlideshow(movies: moviesSlideshow),
-        MoviesHorizontalListview(
-          movies: nowPlayingMovies,
-          title: 'En cines',
-          subTitle: 'Lunes 20',
-          loadNextPage: () {
-            ref.read(nowPlayingMoviesProvider.notifier).loadNextPage();
-          },
+    return CustomScrollView(
+      slivers: [
+        const SliverAppBar(
+          floating: true,
+          flexibleSpace: FlexibleSpaceBar(
+            title: CustomAppbar(),
+            titlePadding: EdgeInsets.all(0),
+          ),
+        ),
+
+        SliverList(
+          delegate: SliverChildBuilderDelegate((context, index) {
+            return Column(
+              children: [
+                MoviesSlideshow(movies: moviesSlideshow),
+
+                MoviesHorizontalListview(
+                  movies: nowPlayingMovies,
+                  title: 'En cines',
+                  subTitle: 'Lunes 20',
+                  loadNextPage: () {
+                    ref.read(nowPlayingMoviesProvider.notifier).loadNextPage();
+                  },
+                ),
+                MoviesHorizontalListview(
+                  movies: upcomingMovies,
+                  title: 'Próximamente',
+                  loadNextPage: () {
+                    ref.read(upcomingMoviesProvider.notifier).loadNextPage();
+                  },
+                ),
+                MoviesHorizontalListview(
+                  movies: popularMovies,
+                  title: 'Populares',
+                  loadNextPage: () {
+                    ref.read(popularMoviesProvider.notifier).loadNextPage();
+                  },
+                ),
+                MoviesHorizontalListview(
+                  movies: topRatedMovies,
+                  title: 'Las más valorados',
+                  loadNextPage: () {
+                    ref.read(topRatedMoviesProvider.notifier).loadNextPage();
+                  },
+                ),
+                SizedBox(height: 10),
+              ],
+            );
+          }, childCount: 1),
         ),
       ],
     );

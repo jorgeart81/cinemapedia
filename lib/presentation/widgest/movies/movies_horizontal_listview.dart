@@ -127,7 +127,7 @@ class _Slide extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                HumanFormats.number(movie.popularity),
+                HumanFormats.number(movie.popularity * 1000),
                 style: textStyle.bodySmall,
               ),
             ],
