@@ -27,10 +27,10 @@ class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
 
   @override
-  _HomeViewState createState() => _HomeViewState();
+  HomeViewState createState() => HomeViewState();
 }
 
-class _HomeViewState extends ConsumerState<HomeView> {
+class HomeViewState extends ConsumerState<HomeView> {
   @override
   void initState() {
     super.initState();

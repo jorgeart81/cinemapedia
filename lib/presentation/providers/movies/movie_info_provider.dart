@@ -20,7 +20,6 @@ class MovieMapNotifier extends StateNotifier<Map<String, Movie>> {
     if (state[id.toString()] != null) return;
 
     Movie movie = await getMovie(id);
-
     state = {...state, '$id': movie};
   }
 }
