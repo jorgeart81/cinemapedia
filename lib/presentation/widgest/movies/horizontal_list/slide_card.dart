@@ -1,6 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/config/helpers/human_formats.dart';
-import 'package:cinemapedia/domain/movie.dart';
+import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
 
 typedef GoToCallback = void Function(int id);
