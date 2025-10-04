@@ -17,8 +17,8 @@ extension MovieDBExtension on MovieMovieDB {
       popularity: popularity,
       posterPath: posterPath != ''
           ? 'https://image.tmdb.org/t/p/w500$posterPath'
-          : 'no-poster',
-      releaseDate: releaseDate,
+          : 'https://www.legrand.es/modules/custom/legrand_ecat/assets/img/no-image.png',
+      releaseDate: releaseDate != null ? releaseDate! : DateTime(1900, 1, 1),
       title: title,
       video: video,
       voteAverage: voteAverage,
