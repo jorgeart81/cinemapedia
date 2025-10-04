@@ -6,7 +6,7 @@ import 'package:cinemapedia/infrastructure/models/movie_details.dart';
 import 'package:cinemapedia/infrastructure/models/moviedb_response.dart';
 import 'package:dio/dio.dart';
 
-class MoviedbDatasource extends MoviesDatasource {
+class MoviedbDatasource implements MoviesDatasource {
   final dio = Dio(
     BaseOptions(
       baseUrl: Environment.theMovieDBURL,
@@ -16,6 +16,16 @@ class MoviedbDatasource extends MoviesDatasource {
       },
     ),
   );
+
+  List<Movie> _moviesFromResponse(Response<dynamic> resp) {
+    final movieDBResponse = MovieDbResponse.fromJson(resp.data);
+    final List<Movie> movies = movieDBResponse.results
+        .where((m) => m.posterPath != 'no-poster')
+        .map((m) => m.toEntity())
+        .toList();
+
+    return movies;
+  }
 
   @override
   Future<List<Movie>> getNowPlaying({int page = 1}) async {
@@ -35,16 +45,6 @@ class MoviedbDatasource extends MoviesDatasource {
     );
 
     return _moviesFromResponse(response);
-  }
-
-  List<Movie> _moviesFromResponse(Response<dynamic> resp) {
-    final movieDBResponse = MovieDbResponse.fromJson(resp.data);
-    final List<Movie> movies = movieDBResponse.results
-        .where((m) => m.posterPath != 'no-poster')
-        .map((m) => m.toEntity())
-        .toList();
-
-    return movies;
   }
 
   @override
@@ -76,5 +76,15 @@ class MoviedbDatasource extends MoviesDatasource {
 
     final movieDetails = MovieDetails.fromJson(response.data);
     return movieDetails.toEntity();
+  }
+
+  @override
+  Future<List<Movie>> searchMovies(String query) async {
+    final response = await dio.get(
+      '/search/movie',
+      queryParameters: {'query': query},
+    );
+
+    return _moviesFromResponse(response);
   }
 }
