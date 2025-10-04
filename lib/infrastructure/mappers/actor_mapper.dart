@@ -7,7 +7,7 @@ extension CastExtension on Cast {
     name: name,
     profilePath: profilePath != null
         ? 'https://image.tmdb.org/t/p/w500$profilePath'
-        : 'https://upload.wikimedia.org/wikipedia/commons/2/25/Profile_photo_placeholder_-_jagged_edges.svg',
+        : 'https://i.sstatic.net/HQwHI.jpg',
     character: character,
   );
 }
