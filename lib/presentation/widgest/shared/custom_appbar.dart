@@ -1,4 +1,3 @@
-import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/presentation/delegates/search_movie_delegate.dart';
 import 'package:cinemapedia/presentation/providers/movies/movies_repository_provider.dart';
 import 'package:cinemapedia/presentation/providers/search/search_movies_provider.dart';
@@ -12,7 +11,9 @@ class CustomAppbar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
     final titleStyle = Theme.of(context).textTheme.titleMedium;
-    final searchMovies = ref.read(movieRepositoryProvider).searchMovies;
+    final searchMovies = ref
+        .read(searchedMoviesProvider.notifier)
+        .searchMovieByQuery;
 
     return SafeArea(
       bottom: false,
@@ -33,19 +34,13 @@ class CustomAppbar extends ConsumerWidget {
 
               IconButton(
                 onPressed: () {
-                  final movieRepository = ref.read(movieRepositoryProvider);
                   final searchQuery = ref.read(searchQueryProvider);
 
                   showSearch(
                     query: searchQuery,
                     context: context,
                     delegate: SearchMovieDelegate(
-                      searchMovies: (query) {
-                        ref
-                            .read(searchQueryProvider.notifier)
-                            .update((state) => query);
-                        return searchMovies(query);
-                      },
+                      searchMovies: (query) => searchMovies(query),
                     ),
                   );
                 },
