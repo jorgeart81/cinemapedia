@@ -11,24 +11,15 @@ typedef GoToCallback = void Function(Movie movie);
 
 class SearchMovieDelegate extends SearchDelegate<Movie?> {
   final SeachMoviesCallback searchMovies;
+  final List<Movie> initialMovies;
+
   StreamController<List<Movie>> debounceMovies = StreamController.broadcast();
   Timer? _debounceTimer;
 
-  SearchMovieDelegate({required this.searchMovies});
-
-  void _onQueryChange(String query) {
-    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
-
-    _debounceTimer = Timer(Duration(milliseconds: 500), () async {
-      if (query.isEmpty) {
-        debounceMovies.add([]);
-        return;
-      }
-
-      final movies = await searchMovies(query);
-      debounceMovies.add(movies);
-    });
-  }
+  SearchMovieDelegate({
+    required this.initialMovies,
+    required this.searchMovies,
+  });
 
   void _clearStreams() {
     debounceMovies.close();
@@ -63,6 +54,16 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
     return Text('BuildResults');
   }
 
+  void _onQueryChange(String query) {
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
+    if (query.isEmpty) debounceMovies.add([]);
+
+    _debounceTimer = Timer(Duration(milliseconds: 500), () async {
+      final movies = await searchMovies(query);
+      debounceMovies.add(movies);
+    });
+  }
+
   void _navigateToMovieScreen(BuildContext context, Movie movie) {
     _clearStreams();
     close(context, movie);
@@ -74,6 +75,7 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
     _onQueryChange(query);
 
     return StreamBuilder(
+      initialData: initialMovies,
       stream: debounceMovies.stream,
       builder: (context, snapshot) {
         final List<Movie> movies = snapshot.data ?? [];
