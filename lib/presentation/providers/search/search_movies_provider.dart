@@ -28,4 +28,9 @@ class SearchMoviesNotifier extends StateNotifier<List<Movie>> {
     state = movies;
     return movies;
   }
+
+  void clearSearch() {
+    ref.read(searchQueryProvider.notifier).update((state) => '');
+    state = [];
+  }
 }

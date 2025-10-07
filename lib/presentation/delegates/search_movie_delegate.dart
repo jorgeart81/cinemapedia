@@ -12,13 +12,18 @@ typedef GoToCallback = void Function(Movie movie);
 class SearchMovieDelegate extends SearchDelegate<Movie?> {
   final SeachMoviesCallback searchMovies;
   final List<Movie> initialMovies;
+  final void Function()? onClear;
+
+  Map<String, List<Movie>> seachCache = {};
 
   StreamController<List<Movie>> debounceMovies = StreamController.broadcast();
+  StreamController<bool> isLoadingStream = StreamController.broadcast();
   Timer? _debounceTimer;
 
   SearchMovieDelegate({
     required this.initialMovies,
     required this.searchMovies,
+    this.onClear,
   });
 
   void _clearStreams() {
@@ -31,9 +36,29 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
-      FadeIn(
-        animate: query.isNotEmpty,
-        child: IconButton(onPressed: () => query = '', icon: Icon(Icons.clear)),
+      StreamBuilder(
+        initialData: false,
+        stream: isLoadingStream.stream,
+        builder: (context, snapshot) {
+          Widget icon = snapshot.data ?? false
+              ? SizedBox(
+                  width: 15,
+                  height: 15,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Icon(Icons.clear);
+
+          return FadeIn(
+            animate: query.isNotEmpty,
+            child: IconButton(
+              onPressed: () {
+                query = '';
+                if (onClear != null) onClear!();
+              },
+              icon: icon,
+            ),
+          );
+        },
       ),
     ];
   }
@@ -51,16 +76,33 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
 
   @override
   Widget buildResults(BuildContext context) {
-    return Text('BuildResults');
+    return SizedBox.shrink();
   }
 
-  void _onQueryChange(String query) {
-    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
-    if (query.isEmpty) debounceMovies.add([]);
+  @override
+  void showResults(BuildContext context) {
+    /// The call to `super` is commented out to disable the rendering of build results.
+    // super.showResults(context);
+  }
 
-    _debounceTimer = Timer(Duration(milliseconds: 500), () async {
-      final movies = await searchMovies(query);
+  void _onQueryChange(String seachQuery, [int milliseconds = 500]) {
+    isLoadingStream.add(true);
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
+    if (seachQuery.isEmpty) debounceMovies.add([]);
+
+    final cacheMovies = seachCache[query];
+
+    _debounceTimer = Timer(Duration(milliseconds: milliseconds), () async {
+      if (cacheMovies != null) {
+        debounceMovies.add(cacheMovies);
+        isLoadingStream.add(false);
+        return;
+      }
+
+      final movies = await searchMovies(seachQuery);
       debounceMovies.add(movies);
+      seachCache = {...seachCache, query: movies};
+      isLoadingStream.add(false);
     });
   }
 
