@@ -1,7 +1,8 @@
 import 'package:cinemapedia/config/router/app_routes.dart';
 import 'package:cinemapedia/presentation/screens/movies/movie_screen.dart';
-import 'package:cinemapedia/presentation/views/home_view.dart';
-import 'package:cinemapedia/presentation/views/home_views/favorites_view.dart';
+import 'package:cinemapedia/presentation/views/movies/categories_view.dart';
+import 'package:cinemapedia/presentation/views/movies/favorites_view.dart';
+import 'package:cinemapedia/presentation/views/movies/home_view.dart';
 import 'package:cinemapedia/presentation/widgest/shared/scaffold_with_navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -45,7 +46,7 @@ final appRouter = GoRouter(
             GoRoute(
               path: '/categories',
               name: AppRoute.categories.name,
-              builder: (context, state) => Placeholder(),
+              builder: (context, state) => CategoriesView(),
             ),
           ],
         ),
