@@ -14,14 +14,7 @@ class _CustomSliverAppBar extends StatelessWidget {
       backgroundColor: Colors.black,
       expandedHeight: size.height * 0.7,
       foregroundColor: Colors.white,
-      actions: [
-        IconButton(
-          onPressed: () {},
-          icon: isFavorite
-              ? Icon(Icons.favorite, color: Colors.red)
-              : Icon(Icons.favorite_border_outlined),
-        ),
-      ],
+      actions: [_FavoriteButton(movie: movie)],
       flexibleSpace: FlexibleSpaceBar(
         // titlePadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         // title: SizedBox(
@@ -63,6 +56,38 @@ class _CustomSliverAppBar extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _FavoriteButton extends ConsumerWidget {
+  final Movie movie;
+
+  const _FavoriteButton({required this.movie});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return IconButton(
+      onPressed: () async {
+        await ref
+            .read(favoriteMoviesProvider.notifier)
+            .toggleFavoriteMovie(movie);
+        ref.invalidate(isFavoriteMovieProvider(movie.id));
+      },
+      icon: ref
+          .watch(isFavoriteMovieProvider(movie.id))
+          .when(
+            data: (isFavorite) => (isFavorite)
+                ? Icon(Icons.favorite, color: Colors.red)
+                : Icon(Icons.favorite_border_outlined),
+            error: (_, __) =>
+                throw Exception('Error al cargar el estado de favoritos'),
+            loading: () => SizedBox(
+              width: 15,
+              height: 15,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
     );
   }
 }
