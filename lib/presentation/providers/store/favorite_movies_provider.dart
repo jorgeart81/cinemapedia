@@ -12,7 +12,7 @@ final favoriteMoviesProvider = StateNotifierProvider((ref) {
 
 class StorageMovieNotifier extends StateNotifier<Map<int, Movie>> {
   final LocalStorageRepository storageRepository;
-  final int _limit = 10;
+  final int _limit = 15;
   int? _lastId;
   bool _isLastPage = false;
 
@@ -47,6 +47,6 @@ class StorageMovieNotifier extends StateNotifier<Map<int, Movie>> {
       return;
     }
 
-    state = {...state, movie.id: movie};
+    state = {movie.id: movie, ...state};
   }
 }
