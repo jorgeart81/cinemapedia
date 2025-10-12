@@ -12,9 +12,7 @@ typedef GoToCallback = void Function(Movie movie);
 class SearchMovieDelegate extends SearchDelegate<Movie?> {
   final SeachMoviesCallback searchMovies;
   final List<Movie> initialMovies;
-  final void Function()? onClear;
-
-  Map<String, List<Movie>> seachCache = {};
+  final void Function() onClear;
 
   StreamController<List<Movie>> debounceMovies = StreamController.broadcast();
   StreamController<bool> isLoadingStream = StreamController.broadcast();
@@ -23,15 +21,22 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
   SearchMovieDelegate({
     required this.initialMovies,
     required this.searchMovies,
-    this.onClear,
+    required this.onClear,
   });
 
   void _clearStreams() {
     debounceMovies.close();
+    isLoadingStream.close();
   }
 
   @override
   String? get searchFieldLabel => 'Buscar película';
+
+  void clearSearch() {
+    query = '';
+    debounceMovies.add([]);
+    // onClear();
+  }
 
   @override
   List<Widget>? buildActions(BuildContext context) {
@@ -50,13 +55,7 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
 
           return FadeIn(
             animate: query.isNotEmpty,
-            child: IconButton(
-              onPressed: () {
-                query = '';
-                if (onClear != null) onClear!();
-              },
-              icon: icon,
-            ),
+            child: IconButton(onPressed: clearSearch, icon: icon),
           );
         },
       ),
@@ -88,20 +87,10 @@ class SearchMovieDelegate extends SearchDelegate<Movie?> {
   void _onQueryChange(String seachQuery, [int milliseconds = 500]) {
     isLoadingStream.add(true);
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
-    if (seachQuery.isEmpty) debounceMovies.add([]);
-
-    final cacheMovies = seachCache[query];
 
     _debounceTimer = Timer(Duration(milliseconds: milliseconds), () async {
-      if (cacheMovies != null) {
-        debounceMovies.add(cacheMovies);
-        isLoadingStream.add(false);
-        return;
-      }
-
       final movies = await searchMovies(seachQuery);
       debounceMovies.add(movies);
-      seachCache = {...seachCache, query: movies};
       isLoadingStream.add(false);
     });
   }

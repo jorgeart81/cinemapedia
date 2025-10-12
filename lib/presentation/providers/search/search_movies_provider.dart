@@ -18,19 +18,30 @@ class SearchMoviesNotifier extends StateNotifier<List<Movie>> {
   final SeachMoviesByQueryCallback fetchSearchMovies;
   final Ref ref;
 
+  Map<String, List<Movie>> seachCache = {};
+
   SearchMoviesNotifier({required this.fetchSearchMovies, required this.ref})
     : super([]);
 
   Future<List<Movie>> searchMovieByQuery(String query) async {
+    final cacheMovies = seachCache[query];
+
+    if (cacheMovies != null && cacheMovies.isNotEmpty) {
+      state = cacheMovies;
+      return cacheMovies;
+    }
+
     final movies = await fetchSearchMovies(query);
     ref.read(searchQueryProvider.notifier).update((state) => query);
 
+    seachCache = {query: movies};
     state = movies;
     return movies;
   }
 
   void clearSearch() {
     ref.read(searchQueryProvider.notifier).update((state) => '');
+    seachCache = {};
     state = [];
   }
 }
