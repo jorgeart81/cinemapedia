@@ -24,10 +24,38 @@ class FavoritesViewState extends ConsumerState<FavoritesView> {
     final List<Movie> favoriteMovies = favoriteMoviesMap.values.toList();
 
     return Scaffold(
-      body: MovieMasonry(
-        movies: favoriteMovies,
-        isLastPage: ref.read(favoriteMoviesProvider.notifier).isLastPage,
-        loadNextPage: ref.read(favoriteMoviesProvider.notifier).loadNextMovies,
+      body: favoriteMovies.isNotEmpty
+          ? MovieMasonry(
+              movies: favoriteMovies,
+              isLastPage: ref.read(favoriteMoviesProvider.notifier).isLastPage,
+              loadNextPage: ref
+                  .read(favoriteMoviesProvider.notifier)
+                  .loadNextMovies,
+            )
+          : _EmptyMovies(),
+    );
+  }
+}
+
+class _EmptyMovies extends StatelessWidget {
+  const _EmptyMovies();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.favorite_border_outlined,
+            size: 50,
+            color: colorScheme.primary,
+          ),
+          SizedBox(height: 8),
+          Text('No tienes películas favoritas'),
+        ],
       ),
     );
   }
