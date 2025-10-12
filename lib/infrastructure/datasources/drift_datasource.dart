@@ -26,7 +26,9 @@ class DriftDatasource implements LocalStorageDatasource {
     int? lastId,
   }) async {
     final query = database.select(database.favoriteMovies)
-      ..orderBy([(t) => OrderingTerm.desc(t.movieId)]);
+      ..orderBy([(t) => OrderingTerm.desc(t.id)]);
+
+    final totalMovies = await query.get();
 
     if (lastId != null) {
       query.where((t) => t.id.isSmallerThanValue(lastId));
@@ -39,6 +41,8 @@ class DriftDatasource implements LocalStorageDatasource {
     return PaginatedResult(
       data: movieRows.map((row) => _favoriteMovyToMovieMapper(row)).toList(),
       cursor: movieRows.isNotEmpty ? movieRows.last.id : null,
+      pageSize: movieRows.length,
+      totalCount: totalMovies.length,
     );
   }
 

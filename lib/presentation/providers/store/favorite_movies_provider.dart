@@ -12,13 +12,17 @@ final favoriteMoviesProvider = StateNotifierProvider((ref) {
 
 class StorageMovieNotifier extends StateNotifier<Map<int, Movie>> {
   final LocalStorageRepository storageRepository;
-  int? lastId;
+  final int _limit = 10;
+  int? _lastId;
+  bool _isLastPage = false;
+
+  bool get isLastPage => _isLastPage;
 
   StorageMovieNotifier({required this.storageRepository}) : super({});
 
   Future<void> loadNextMovies() async {
     final PaginatedResult<Movie> result = await storageRepository
-        .loadFavoriteMovies(lastId: lastId);
+        .loadFavoriteMovies(limit: _limit, lastId: _lastId);
 
     final List<Movie> favoriteMovies = result.data;
 
@@ -26,7 +30,12 @@ class StorageMovieNotifier extends StateNotifier<Map<int, Movie>> {
       for (final movie in favoriteMovies) movie.id: movie,
     };
 
+    if (_isLastPage) return;
     state = {...state, ...moviesMap};
+
+    _lastId = result.cursor;
+    _isLastPage =
+        result.pageSize < _limit || result.totalCount - state.keys.length <= 0;
   }
 
   Future<void> toggleFavoriteMovie(Movie movie) async {
@@ -35,7 +44,6 @@ class StorageMovieNotifier extends StateNotifier<Map<int, Movie>> {
 
     if (isFavorite) {
       state.remove(movie.id);
-      state = {...state};
       return;
     }
 
