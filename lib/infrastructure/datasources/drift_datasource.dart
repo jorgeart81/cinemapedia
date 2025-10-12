@@ -1,4 +1,5 @@
 import 'package:cinemapedia/config/database/database.dart';
+import 'package:cinemapedia/domain/common/paginated_result.dart';
 import 'package:cinemapedia/domain/datasources/local_storage_datasource.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:drift/drift.dart';
@@ -20,17 +21,25 @@ class DriftDatasource implements LocalStorageDatasource {
   }
 
   @override
-  Future<List<Movie>> loadFavoriteMovies({
+  Future<PaginatedResult<Movie>> loadFavoriteMovies({
     int limit = 10,
-    int offset = 0,
+    int? lastId,
   }) async {
     final query = database.select(database.favoriteMovies)
-      ..orderBy([(t) => OrderingTerm.desc(t.movieId)])
-      ..limit(limit, offset: offset);
+      ..orderBy([(t) => OrderingTerm.desc(t.movieId)]);
+
+    if (lastId != null) {
+      query.where((t) => t.id.isSmallerThanValue(lastId));
+    }
+
+    query.limit(limit);
 
     final List<FavoriteMovy> movieRows = await query.get();
 
-    return movieRows.map((row) => _favoriteMovyToMovieMapper(row)).toList();
+    return PaginatedResult(
+      data: movieRows.map((row) => _favoriteMovyToMovieMapper(row)).toList(),
+      cursor: movieRows.isNotEmpty ? movieRows.last.id : null,
+    );
   }
 
   Movie _favoriteMovyToMovieMapper(FavoriteMovy row) {

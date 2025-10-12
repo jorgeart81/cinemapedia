@@ -1,3 +1,4 @@
+import 'package:cinemapedia/domain/common/paginated_result.dart';
 import 'package:cinemapedia/domain/datasources/local_storage_datasource.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/domain/repositories/local_storage_repository.dart';
@@ -13,11 +14,11 @@ class DriftRepositoryImpl implements LocalStorageRepository {
   }
 
   @override
-  Future<List<Movie>> loadFavoriteMovies({
+  Future<PaginatedResult<Movie>> loadFavoriteMovies({
     int limit = 10,
-    int offset = 0,
+    int? lastId,
   }) async {
-    return await datasource.loadFavoriteMovies(limit: limit, offset: offset);
+    return await datasource.loadFavoriteMovies(limit: limit, lastId: lastId);
   }
 
   @override

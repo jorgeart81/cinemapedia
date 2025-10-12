@@ -1,3 +1,4 @@
+import 'package:cinemapedia/domain/common/paginated_result.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/domain/repositories/local_storage_repository.dart';
 import 'package:cinemapedia/presentation/providers/store/local_storage_provider.dart';
@@ -10,20 +11,22 @@ final favoriteMoviesProvider = StateNotifierProvider((ref) {
 });
 
 class StorageMovieNotifier extends StateNotifier<Map<int, Movie>> {
-  int page = 0;
   final LocalStorageRepository storageRepository;
+  int? lastId;
 
   StorageMovieNotifier({required this.storageRepository}) : super({});
 
-  Future<void> loadFavoriteMovies() async {
-    final List<Movie> favoriteMovies = await storageRepository
-        .loadFavoriteMovies();
+  Future<void> loadNextMovies() async {
+    final PaginatedResult<Movie> result = await storageRepository
+        .loadFavoriteMovies(lastId: lastId);
+
+    final List<Movie> favoriteMovies = result.data;
 
     final Map<int, Movie> moviesMap = {
       for (final movie in favoriteMovies) movie.id: movie,
     };
 
-    state = moviesMap;
+    state = {...state, ...moviesMap};
   }
 
   Future<void> toggleFavoriteMovie(Movie movie) async {
