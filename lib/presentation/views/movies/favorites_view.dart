@@ -4,6 +4,8 @@ import 'package:cinemapedia/presentation/widgest/movies/movie_masonry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+enum Status { loading, success }
+
 class FavoritesView extends ConsumerStatefulWidget {
   const FavoritesView({super.key});
 
@@ -12,10 +14,19 @@ class FavoritesView extends ConsumerStatefulWidget {
 }
 
 class FavoritesViewState extends ConsumerState<FavoritesView> {
+  Status status = Status.loading;
+
+  Future<void> _loadData() async {
+    await ref.read(favoriteMoviesProvider.notifier).loadNextMovies();
+    setState(() {
+      status = Status.success;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    ref.read(favoriteMoviesProvider.notifier).loadNextMovies();
+    _loadData();
   }
 
   @override
@@ -24,15 +35,23 @@ class FavoritesViewState extends ConsumerState<FavoritesView> {
     final List<Movie> favoriteMovies = favoriteMoviesMap.values.toList();
 
     return Scaffold(
-      body: favoriteMovies.isNotEmpty
-          ? MovieMasonry(
-              movies: favoriteMovies,
-              isLastPage: ref.read(favoriteMoviesProvider.notifier).isLastPage,
-              loadNextPage: ref
-                  .read(favoriteMoviesProvider.notifier)
-                  .loadNextMovies,
-            )
-          : _EmptyMovies(),
+      body: switch (status) {
+        Status.loading => const Center(
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+        Status.success =>
+          favoriteMovies.isNotEmpty
+              ? MovieMasonry(
+                  movies: favoriteMovies,
+                  isLastPage: ref
+                      .read(favoriteMoviesProvider.notifier)
+                      .isLastPage,
+                  loadNextPage: ref
+                      .read(favoriteMoviesProvider.notifier)
+                      .loadNextMovies,
+                )
+              : _EmptyMovies(),
+      },
     );
   }
 }
