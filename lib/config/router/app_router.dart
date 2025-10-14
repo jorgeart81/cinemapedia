@@ -30,11 +30,10 @@ final appRouter = GoRouter(
                   parentNavigatorKey: _rootNavigatorKey,
                   path: 'movie/:id',
                   name: AppRoute.movieScreen.name,
-                  builder: (context, state) {
-                    return MovieScreen(
-                      movieId: state.pathParameters['id'] ?? 'no-id',
-                    );
-                  },
+                  pageBuilder: (context, state) => buildPageWithSlide(
+                    MovieScreen(movieId: state.pathParameters['id'] ?? 'no-id'),
+                    state,
+                  ),
                 ),
               ],
             ),
@@ -64,3 +63,34 @@ final appRouter = GoRouter(
     ),
   ],
 );
+
+Page<T> buildPageWithFade<T>(Widget child, GoRouterState state) {
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    transitionDuration: const Duration(milliseconds: 300),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(opacity: animation, child: child);
+    },
+    child: child,
+  );
+}
+
+Page<T> buildPageWithSlide<T>(
+  Widget child,
+  GoRouterState state, [
+  bool isGoingRight = true,
+]) {
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    transitionDuration: const Duration(milliseconds: 300),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+        SlideTransition(
+          position: Tween(
+            begin: Offset(isGoingRight ? 1 : -1, 0),
+            end: Offset.zero,
+          ).animate(animation),
+          child: child,
+        ),
+    child: child,
+  );
+}
