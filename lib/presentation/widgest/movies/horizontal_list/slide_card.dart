@@ -22,27 +22,40 @@ class SlideCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: 225,
             width: 150,
-            child: ClipRRect(
-              borderRadius: BorderRadiusGeometry.circular(20),
-              child: Image.network(
-                movie.posterPath,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress != null) {
-                    return Center(
-                      child: const CircularProgressIndicator(strokeWidth: 2),
-                    );
-                  }
+            child: AspectRatio(
+              aspectRatio: 2 / 3,
+              child: ClipRRect(
+                borderRadius: BorderRadiusGeometry.circular(20),
+                child: Image.network(
+                  movie.posterPath,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress != null) {
+                      final double size = 25;
 
-                  return GestureDetector(
-                    onTap: () {
-                      goTo(movie.id);
-                    },
-                    child: FadeIn(child: child),
-                  );
-                },
+                      return Container(
+                        color: Colors.white70,
+                        child: Center(
+                          child: SizedBox(
+                            height: size,
+                            width: size,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+
+                    return GestureDetector(
+                      onTap: () {
+                        goTo(movie.id);
+                      },
+                      child: FadeIn(child: child),
+                    );
+                  },
+                ),
               ),
             ),
           ),

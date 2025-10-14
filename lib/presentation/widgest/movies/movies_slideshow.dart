@@ -1,7 +1,9 @@
-import 'package:animate_do/animate_do.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:go_router/go_router.dart';
 
 class MoviesSlideshow extends StatelessWidget {
   final List<Movie> movies;
@@ -47,24 +49,28 @@ class _Slide extends StatelessWidget {
       ],
     );
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 30),
-      child: DecoratedBox(
-        decoration: decoration,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Image.network(
-            movie.backdropPath,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress != null) {
-                return const DecoratedBox(
-                  decoration: BoxDecoration(color: Colors.black12),
-                );
-              }
-
-              return FadeIn(child: child);
-            },
+    return GestureDetector(
+      onTap: () => context.push('/movie/${movie.id}'),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 30),
+        child: DecoratedBox(
+          decoration: decoration,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: CachedNetworkImage(
+              imageUrl: movie.backdropPath,
+              placeholder: (context, url) => DecoratedBox(
+                decoration: BoxDecoration(color: Colors.black12),
+              ),
+              fit: BoxFit.cover,
+              cacheManager: CacheManager(
+                Config(
+                  'slideshowKey',
+                  stalePeriod: const Duration(days: 7),
+                  maxNrOfCacheObjects: 10,
+                ),
+              ),
+            ),
           ),
         ),
       ),
