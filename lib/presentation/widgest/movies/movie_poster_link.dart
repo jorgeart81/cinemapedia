@@ -25,26 +25,25 @@ class _Poster extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: AspectRatio(
-        aspectRatio: 2 / 3,
-        child: CachedNetworkImage(
-          fit: BoxFit.cover,
-          imageUrl: src,
-          progressIndicatorBuilder: (context, url, downloadProgress) => Center(
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              value: downloadProgress.progress,
+    return AspectRatio(
+      aspectRatio: 2 / 3,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white70,
+          image: DecorationImage(
+            image: CachedNetworkImageProvider(
+              src,
+              cacheManager: CacheManager(
+                Config(
+                  'favoriesKey',
+                  stalePeriod: const Duration(days: 7),
+                  maxNrOfCacheObjects: 20,
+                ),
+              ),
             ),
+            fit: BoxFit.cover,
           ),
-          cacheManager: CacheManager(
-            Config(
-              'favoriesKey',
-              stalePeriod: const Duration(days: 7),
-              maxNrOfCacheObjects: 20,
-            ),
-          ),
+          borderRadius: BorderRadius.circular(20),
         ),
       ),
     );
