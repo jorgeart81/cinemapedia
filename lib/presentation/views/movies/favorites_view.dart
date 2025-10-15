@@ -1,10 +1,9 @@
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/presentation/providers/store/favorite_movies_provider.dart';
 import 'package:cinemapedia/presentation/widgets/movies/movie_masonry.dart';
+import 'package:cinemapedia/utils/request_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-enum Status { loading, success }
 
 class FavoritesView extends ConsumerStatefulWidget {
   const FavoritesView({super.key});
@@ -14,12 +13,12 @@ class FavoritesView extends ConsumerStatefulWidget {
 }
 
 class FavoritesViewState extends ConsumerState<FavoritesView> {
-  Status status = Status.loading;
+  RequestState<Null> state = RequestState.loading;
 
   Future<void> _loadData() async {
     await ref.read(favoriteMoviesProvider.notifier).loadNextMovies();
     setState(() {
-      status = Status.success;
+      state = RequestState.success(null);
     });
   }
 
@@ -35,23 +34,19 @@ class FavoritesViewState extends ConsumerState<FavoritesView> {
     final List<Movie> favoriteMovies = favoriteMoviesMap.values.toList();
 
     return Scaffold(
-      body: switch (status) {
-        Status.loading => const Center(
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-        Status.success =>
-          favoriteMovies.isNotEmpty
-              ? MovieMasonry(
-                  movies: favoriteMovies,
-                  isLastPage: ref
-                      .read(favoriteMoviesProvider.notifier)
-                      .isLastPage,
-                  loadNextPage: ref
-                      .read(favoriteMoviesProvider.notifier)
-                      .loadNextMovies,
-                )
-              : _EmptyMovies(),
-      },
+      body: state.displayResult(
+        onLoading: () =>
+            const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        onSuccess: (_) => favoriteMovies.isNotEmpty
+            ? MovieMasonry(
+                movies: favoriteMovies,
+                isLastPage: ref
+                    .read(favoriteMoviesProvider.notifier)
+                    .isLastPage,
+                loadNextPage: _loadData,
+              )
+            : _EmptyMovies(),
+      ),
     );
   }
 }
